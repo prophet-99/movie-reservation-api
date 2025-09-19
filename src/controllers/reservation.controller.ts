@@ -1,6 +1,12 @@
 import { NextFunction, Request, Response } from 'express';
 
 import { ReservationModel } from '../models/reservation.model';
+import { getErrorByCodeName } from '../utils/errors.util';
+
+const NOT_FOUND_MESSAGE = 'Reserva no encontrada! ☹';
+const NOT_FOUND_CUSTOM_ERROR = {
+  CastError: NOT_FOUND_MESSAGE,
+};
 
 export async function createReservation(
   req: Request,
@@ -35,8 +41,6 @@ export async function getReservationById(
   res: Response,
   next: NextFunction
 ) {
-  const notFoundMessage = 'Reserva no encontrada! ☹';
-
   try {
     const reservation = await ReservationModel.findById(req.params.id).lean();
     if (reservation) {
@@ -44,14 +48,14 @@ export async function getReservationById(
       return; // EARLY RETURN
     }
 
-    res.status(404).json({ message: notFoundMessage });
+    res.status(404).json({ message: NOT_FOUND_MESSAGE });
   } catch (error: any) {
-    if (error?.name === 'CastError') {
-      res.status(404).json({ message: notFoundMessage });
-      return;
-    }
+    const { message, status } = getErrorByCodeName(
+      error?.name,
+      NOT_FOUND_CUSTOM_ERROR
+    );
 
-    next(error);
+    res.status(status).json({ message });
   }
 }
 
@@ -60,8 +64,6 @@ export async function updateReservation(
   res: Response,
   next: NextFunction
 ) {
-  const notFoundMessage = 'Reserva no encontrada! ☹';
-
   try {
     const reservationUpdated = await ReservationModel.findByIdAndUpdate(
       req.params.id,
@@ -73,14 +75,14 @@ export async function updateReservation(
       return; // EARLY RETURN
     }
 
-    res.status(404).json({ message: notFoundMessage });
+    res.status(404).json({ message: NOT_FOUND_MESSAGE });
   } catch (error: any) {
-    if (error?.name === 'CastError') {
-      res.status(404).json({ message: notFoundMessage });
-      return;
-    }
+    const { message, status } = getErrorByCodeName(
+      error?.name,
+      NOT_FOUND_CUSTOM_ERROR
+    );
 
-    next(error);
+    res.status(status).json({ message });
   }
 }
 
@@ -89,8 +91,6 @@ export async function deleteReservation(
   res: Response,
   next: NextFunction
 ) {
-  const notFoundMessage = 'Reserva no encontrada! ☹';
-
   try {
     const reservationDeleted = await ReservationModel.findByIdAndDelete(
       req.params.id
@@ -100,13 +100,13 @@ export async function deleteReservation(
       return; // EARLY RETURN
     }
 
-    res.status(404).json({ message: notFoundMessage });
+    res.status(404).json({ message: NOT_FOUND_MESSAGE });
   } catch (error: any) {
-    if (error?.name === 'CastError') {
-      res.status(404).json({ message: notFoundMessage });
-      return;
-    }
+    const { message, status } = getErrorByCodeName(
+      error?.name,
+      NOT_FOUND_CUSTOM_ERROR
+    );
 
-    next(error);
+    res.status(status).json({ message });
   }
 }
