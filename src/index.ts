@@ -5,6 +5,7 @@ import { ENV } from './config/env.config';
 import { connectMongo } from './db/mongo.db';
 import { errorHandler } from './middlewares/error.middleware';
 import reservationRoutes from './routes/reservation.routes';
+import authRoutes from './routes/auth.routes';
 
 async function bootstrap() {
   await connectMongo();
@@ -14,6 +15,7 @@ async function bootstrap() {
   app.use(express.json());
 
   app.use('/api/reservations', reservationRoutes);
+  app.use('/api/auth', authRoutes);
 
   app.use(errorHandler);
 
